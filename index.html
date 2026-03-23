@@ -4,1486 +4,185 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Productivity Vault</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0e0e0e;
-    --bg2: #161616;
-    --bg3: #1e1e1e;
-    --bg4: #252525;
-    --border: #2a2a2a;
-    --text: #e8e8e8;
-    --text2: #a0a0a0;
-    --text3: #606060;
-    --accent-gold: #f5c842;
-    --accent-green: #4ade80;
-    --accent-blue: #60a5fa;
-    --accent-orange: #fb923c;
-    --accent-purple: #a78bfa;
-    --accent-red: #f87171;
-    --accent-teal: #2dd4bf;
-    --font-head: 'Syne', sans-serif;
-    --font-mono: 'Space Mono', monospace;
-    --font-body: 'DM Sans', sans-serif;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-body);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ── LAYOUT ── */
-  .app {
-    display: grid;
-    grid-template-columns: 220px 1fr;
-    grid-template-rows: 56px 1fr;
-    min-height: 100vh;
-  }
-
-  /* ── TOPBAR ── */
-  .topbar {
-    grid-column: 1 / -1;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .vault-logo {
-    font-family: var(--font-head);
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: var(--accent-gold);
-  }
-
-  .vault-logo span { color: var(--text2); font-weight: 400; font-size: 13px; margin-left: 6px; }
-
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text2);
-  }
-
-  #clock {
-    color: var(--accent-gold);
-    font-size: 13px;
-    font-weight: 700;
-  }
-
-  #dateDisplay { color: var(--text2); font-size: 11px; }
-
-  /* ── SIDEBAR ── */
-  .sidebar {
-    background: var(--bg2);
-    border-right: 1px solid var(--border);
-    padding: 20px 0;
-    overflow-y: auto;
-    height: calc(100vh - 56px);
-    position: sticky;
-    top: 56px;
-  }
-
-  .sidebar-section {
-    margin-bottom: 24px;
-    padding: 0 14px;
-  }
-
-  .sidebar-label {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text3);
-    margin-bottom: 8px;
-    padding: 0 6px;
-  }
-
-  .sidebar-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all .15s;
-    margin-bottom: 1px;
-  }
-
-  .sidebar-item:hover, .sidebar-item.active {
-    background: var(--bg3);
-    color: var(--text);
-  }
-
-  .sidebar-item .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  /* quick stats in sidebar */
-  .sidebar-stat {
-    background: var(--bg3);
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin-bottom: 6px;
-    border: 1px solid var(--border);
-  }
-
-  .sidebar-stat .label { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
-  .sidebar-stat .val { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--accent-gold); }
-  .sidebar-stat .sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
-
-  /* ── MAIN ── */
-  .main {
-    overflow-y: auto;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  /* ── SECTION HEADERS ── */
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
-  }
-
-  .section-header h2 {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--text2);
-  }
-
-  .section-header .icon { font-size: 14px; }
-
-  /* ── CARDS GRID ── */
-  .cards-grid {
-    display: grid;
-    gap: 12px;
-  }
-
-  .cards-grid-4 { grid-template-columns: repeat(4, 1fr); }
-  .cards-grid-3 { grid-template-columns: repeat(3, 1fr); }
-  .cards-grid-2 { grid-template-columns: repeat(2, 1fr); }
-
-  .card {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    transition: border-color .2s;
-  }
-
-  .card:hover { border-color: #3a3a3a; }
-
-  /* ── HABIT CARD ── */
-  .habit-card {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    transition: border-color .2s, transform .15s;
-    cursor: pointer;
-  }
-
-  .habit-card:hover { border-color: #3a3a3a; transform: translateY(-1px); }
-
-  .habit-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  .habit-name {
-    font-family: var(--font-head);
-    font-size: 13px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .habit-freq {
-    font-size: 10px;
-    color: var(--text3);
-    font-family: var(--font-mono);
-  }
-
-  /* Circle progress */
-  .circle-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .circle-chart {
-    position: relative;
-    width: 70px;
-    height: 70px;
-  }
-
-  .circle-chart svg {
-    transform: rotate(-90deg);
-    width: 70px;
-    height: 70px;
-  }
-
-  .circle-bg { fill: none; stroke: var(--border); stroke-width: 5; }
-  .circle-fill {
-    fill: none;
-    stroke-width: 5;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.8s ease;
-  }
-
-  .circle-text {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .circle-pct {
-    font-family: var(--font-mono);
-    font-size: 14px;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .circle-sub {
-    font-size: 8px;
-    color: var(--text3);
-    margin-top: 1px;
-  }
-
-  /* Streak badge */
-  .streak-badge {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 20px;
-    background: rgba(245,200,66,0.1);
-    color: var(--accent-gold);
-    border: 1px solid rgba(245,200,66,0.2);
-    white-space: nowrap;
-  }
-
-  /* Checkbox list */
-  .todo-list {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-  }
-
-  .todo-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 7px;
-    background: var(--bg4);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: all .15s;
-    user-select: none;
-  }
-
-  .todo-item:hover { background: #2a2a2a; border-color: #333; }
-
-  .todo-item.checked { opacity: .55; }
-  .todo-item.checked .todo-label { text-decoration: line-through; color: var(--text3); }
-
-  .todo-checkbox {
-    width: 18px; height: 18px;
-    border: 1.5px solid var(--text3);
-    border-radius: 4px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all .15s;
-  }
-
-  .todo-item.checked .todo-checkbox {
-    background: var(--accent-green);
-    border-color: var(--accent-green);
-  }
-
-  .todo-checkbox .check-icon { color: #000; font-size: 11px; display: none; }
-  .todo-item.checked .todo-checkbox .check-icon { display: block; }
-
-  .todo-label { font-size: 13px; flex: 1; }
-
-  .todo-tag {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    padding: 2px 6px;
-    border-radius: 10px;
-    flex-shrink: 0;
-  }
-
-  .todo-time {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--text3);
-  }
-
-  /* Tag colors */
-  .tag-health { background: rgba(74,222,128,.12); color: var(--accent-green); }
-  .tag-mind   { background: rgba(96,165,250,.12); color: var(--accent-blue); }
-  .tag-deen   { background: rgba(245,200,66,.12); color: var(--accent-gold); }
-  .tag-work   { background: rgba(251,146,60,.12); color: var(--accent-orange); }
-  .tag-body   { background: rgba(167,139,250,.12); color: var(--accent-purple); }
-
-  /* ── DAILY OVERVIEW BAR ── */
-  .overview-bar {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    margin-bottom: 4px;
-  }
-
-  .ov-item {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .ov-icon { font-size: 22px; }
-
-  .ov-info .ov-label { font-size: 10px; color: var(--text3); margin-bottom: 2px; }
-  .ov-info .ov-val {
-    font-family: var(--font-mono);
-    font-size: 20px;
-    font-weight: 700;
-  }
-
-  /* ── QUOTE SECTION ── */
-  .quote-card {
-    background: linear-gradient(135deg, #1a1608 0%, #1e1a0a 50%, #161616 100%);
-    border: 1px solid rgba(245,200,66,.2);
-    border-radius: 12px;
-    padding: 22px 26px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .quote-card::before {
-    content: '﷽';
-    position: absolute;
-    right: 20px;
-    top: 12px;
-    font-size: 28px;
-    color: rgba(245,200,66,.08);
-    font-family: serif;
-  }
-
-  .quote-card::after {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--accent-gold);
-    border-radius: 2px 0 0 2px;
-  }
-
-  .quote-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-
-  .quote-header span {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--accent-gold);
-    text-transform: uppercase;
-    opacity: .7;
-  }
-
-  #quoteText {
-    font-size: 15px;
-    line-height: 1.7;
-    color: var(--text);
-    font-style: italic;
-    margin-bottom: 10px;
-    transition: opacity .4s;
-  }
-
-  #quoteSource {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--accent-gold);
-    opacity: .7;
-    transition: opacity .4s;
-  }
-
-  .quote-nav {
-    display: flex;
-    gap: 8px;
-    margin-top: 14px;
-  }
-
-  .quote-btn {
-    background: rgba(245,200,66,.1);
-    border: 1px solid rgba(245,200,66,.2);
-    color: var(--accent-gold);
-    border-radius: 6px;
-    padding: 5px 12px;
-    font-size: 11px;
-    font-family: var(--font-mono);
-    cursor: pointer;
-    transition: all .15s;
-  }
-
-  .quote-btn:hover { background: rgba(245,200,66,.2); }
-
-  /* ── WEEKLY HEATMAP ── */
-  .heatmap-row {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    margin-bottom: 4px;
-  }
-
-  .heatmap-label {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    color: var(--text3);
-    width: 28px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .heatmap-cell {
-    width: 14px; height: 14px;
-    border-radius: 3px;
-    background: var(--border);
-    transition: background .15s;
-    cursor: pointer;
-    position: relative;
-  }
-
-  .heatmap-cell:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: 18px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #000;
-    color: #fff;
-    padding: 3px 6px;
-    border-radius: 4px;
-    font-size: 9px;
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  /* intensity classes */
-  .h0 { background: var(--bg4); }
-  .h1 { background: #1a3a1a; }
-  .h2 { background: #1e5e1e; }
-  .h3 { background: #22882a; }
-  .h4 { background: var(--accent-green); }
-
-  /* ── PROGRESS BAR ── */
-  .progress-bar-wrap { margin-top: 6px; }
-  .progress-bar-bg {
-    height: 4px;
-    background: var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 4px;
-  }
-
-  .progress-bar-fill {
-    height: 100%;
-    border-radius: 10px;
-    transition: width .8s ease;
-  }
-
-  .progress-bar-labels {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--font-mono);
-    font-size: 9px;
-    color: var(--text3);
-  }
-
-  /* ── COMPLETED marker ── */
-  .completed-marker {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    padding: 2px 7px;
-    border-radius: 10px;
-    background: rgba(74,222,128,.12);
-    color: var(--accent-green);
-    border: 1px solid rgba(74,222,128,.2);
-  }
-
-  /* ── MOTIVATION SCORE ── */
-  .motivation-ring {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 1200px) {
-    .cards-grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .overview-bar { grid-template-columns: repeat(3, 1fr); }
-  }
-
-  @media (max-width: 768px) {
-    .app { grid-template-columns: 1fr; }
-    .sidebar { display: none; }
-    .cards-grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .cards-grid-3 { grid-template-columns: 1fr; }
-    .overview-bar { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  /* ── ANIMATIONS ── */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .fade-in { animation: fadeIn .4s ease both; }
-
-  .section-block { animation: fadeIn .4s ease both; }
-  .section-block:nth-child(1) { animation-delay: 0s; }
-  .section-block:nth-child(2) { animation-delay: .05s; }
-  .section-block:nth-child(3) { animation-delay: .1s; }
-  .section-block:nth-child(4) { animation-delay: .15s; }
-  .section-block:nth-child(5) { animation-delay: .2s; }
-  .section-block:nth-child(6) { animation-delay: .25s; }
-
-  /* scrollbar */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
-
-  .divider { height: 1px; background: var(--border); margin: 4px 0; }
-
-  .tag-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-family: var(--font-mono);
-    font-size: 9px;
-    padding: 3px 8px;
-    border-radius: 20px;
-    background: var(--bg4);
-    color: var(--text3);
-    border: 1px solid var(--border);
-  }
-
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-
-  .section-title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-
-  .section-actions {
-    display: flex;
-    gap: 6px;
-  }
-
-  .btn-sm {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    padding: 4px 10px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text3);
-    cursor: pointer;
-    transition: all .15s;
-    letter-spacing: 1px;
-  }
-
-  .btn-sm:hover, .btn-sm.active {
-    background: var(--bg4);
-    color: var(--text);
-    border-color: #3a3a3a;
-  }
-
-  /* All tasks done banner */
-  .all-done-banner {
-    text-align: center;
-    padding: 20px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--accent-green);
-    letter-spacing: 1px;
-    display: none;
-  }
+:root {
+  --bg: #0f1113;
+  --bg2: #15181c;
+  --bg3: #1b1f24;
+  --bg4: #23272e;
+  --border: #2c3138;
+  --text: #e6e6e6;
+  --text2: #9aa0a6;
+  --text3: #6b7280;
+  --accent: #8b949e;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'Space Mono', monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+}
+
+.app{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  grid-template-rows:56px 1fr;
+  min-height:100vh;
+}
+
+.topbar{
+  grid-column:1/-1;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 20px;
+}
+
+.vault-logo{
+  font-weight:600;
+  font-size:15px;
+}
+
+.sidebar{
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  padding:20px 10px;
+}
+
+.sidebar-item{
+  padding:8px;
+  border-radius:6px;
+  color:var(--text2);
+  cursor:pointer;
+}
+
+.sidebar-item:hover{
+  background:var(--bg3);
+  color:var(--text);
+}
+
+.main{
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.card{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px;
+}
+
+.todo-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px;
+  border-radius:6px;
+  background:var(--bg4);
+  border:1px solid var(--border);
+  cursor:pointer;
+}
+
+.todo-item.checked{
+  opacity:.5;
+  text-decoration:line-through;
+}
+
+.todo-checkbox{
+  width:16px;height:16px;
+  border:1px solid var(--text3);
+}
+
+.todo-item.checked .todo-checkbox{
+  background:var(--accent);
+}
+
+.progress-bar-bg{
+  height:4px;
+  background:var(--border);
+  border-radius:10px;
+}
+
+.progress-bar-fill{
+  height:100%;
+  background:var(--accent);
+}
+
+.quote-card{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  padding:16px;
+  border-radius:10px;
+}
+
+button{
+  background:none;
+  border:1px solid var(--border);
+  color:var(--text2);
+  padding:4px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:var(--bg4);
+  color:var(--text);
+}
 </style>
 </head>
 <body>
 
 <div class="app">
 
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-left">
-      <div class="vault-logo">⚡ Productivity Vault <span>Daily Command Center</span></div>
-    </div>
-    <div class="topbar-right">
-      <span id="dateDisplay"></span>
-      <span id="clock"></span>
-      <span style="color:var(--text3)">🇵🇱 Warsaw</span>
-    </div>
-  </header>
+<header class="topbar">
+  <div class="vault-logo">Productivity Vault</div>
+  <div id="clock"></div>
+</header>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Overview</div>
-      <div class="sidebar-item active">
-        <span>🏠</span> Dashboard
-      </div>
-      <div class="sidebar-item">
-        <span>📊</span> Reports
-      </div>
-      <div class="sidebar-item">
-        <span>📁</span> Archive
-      </div>
-    </div>
+<aside class="sidebar">
+  <div class="sidebar-item">Dashboard</div>
+  <div class="sidebar-item">Tasks</div>
+</aside>
 
-    <div class="sidebar-section">
-      <div class="sidebar-label">Today's Stats</div>
-      <div class="sidebar-stat">
-        <div class="label">Tasks Done</div>
-        <div class="val" id="sb-tasks">0/0</div>
-        <div class="sub">daily checklist</div>
-      </div>
-      <div class="sidebar-stat">
-        <div class="label">Habits Done</div>
-        <div class="val" id="sb-habits">0/0</div>
-        <div class="sub">habit tracker</div>
-      </div>
-      <div class="sidebar-stat">
-        <div class="label">Overall Score</div>
-        <div class="val" id="sb-score">0%</div>
-        <div class="sub">today's progress</div>
-      </div>
-    </div>
+<main class="main">
 
-    <div class="sidebar-section">
-      <div class="sidebar-label">Navigation</div>
-      <div class="sidebar-item">
-        <span class="dot" style="background:var(--accent-gold)"></span> Habit Tracker
-      </div>
-      <div class="sidebar-item">
-        <span class="dot" style="background:var(--accent-green)"></span> Daily Tasks
-      </div>
-      <div class="sidebar-item">
-        <span class="dot" style="background:var(--accent-blue)"></span> Goals
-      </div>
-      <div class="sidebar-item">
-        <span class="dot" style="background:var(--accent-purple)"></span> Islamic Quotes
-      </div>
-      <div class="sidebar-item">
-        <span class="dot" style="background:var(--accent-teal)"></span> Weekly View
-      </div>
-    </div>
+<div class="card">
+  <h3>Daily Tasks</h3>
+  <div class="todo-item" onclick="toggle(this)">
+    <div class="todo-checkbox"></div>
+    <span>Complete important work</span>
+  </div>
+</div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-label">Quick Actions</div>
-      <div class="sidebar-item" onclick="resetDay()">🔄 Reset Today</div>
-      <div class="sidebar-item" onclick="nextQuote()">📖 New Quote</div>
-    </div>
-  </aside>
+<div class="quote-card">
+  <div id="quoteText"></div>
+</div>
 
-  <!-- MAIN CONTENT -->
-  <main class="main">
-
-    <!-- SECTION 1: DAILY OVERVIEW -->
-    <div class="section-block">
-      <div class="overview-bar" id="overviewBar">
-        <div class="ov-item">
-          <div class="ov-icon">✅</div>
-          <div class="ov-info">
-            <div class="ov-label">Tasks Done</div>
-            <div class="ov-val" id="ov-tasks" style="color:var(--accent-green)">0/0</div>
-          </div>
-        </div>
-        <div class="ov-item">
-          <div class="ov-icon">🔥</div>
-          <div class="ov-info">
-            <div class="ov-label">Habit Streak</div>
-            <div class="ov-val" id="ov-streak" style="color:var(--accent-gold)">0d</div>
-          </div>
-        </div>
-        <div class="ov-item">
-          <div class="ov-icon">📿</div>
-          <div class="ov-info">
-            <div class="ov-label">Deen Score</div>
-            <div class="ov-val" id="ov-deen" style="color:var(--accent-purple)">0%</div>
-          </div>
-        </div>
-        <div class="ov-item">
-          <div class="ov-icon">💪</div>
-          <div class="ov-info">
-            <div class="ov-label">Health Score</div>
-            <div class="ov-val" id="ov-health" style="color:var(--accent-teal)">0%</div>
-          </div>
-        </div>
-        <div class="ov-item">
-          <div class="ov-icon">🧠</div>
-          <div class="ov-info">
-            <div class="ov-label">Mind Score</div>
-            <div class="ov-val" id="ov-mind" style="color:var(--accent-blue)">0%</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 2: ISLAMIC QUOTE -->
-    <div class="section-block">
-      <div class="section-header">
-        <span class="icon">📖</span>
-        <h2>Daily Wisdom · Islamic Scholars & Hadith</h2>
-      </div>
-      <div class="quote-card">
-        <div class="quote-header">
-          <span>✦ QUOTE OF THE MOMENT ✦</span>
-        </div>
-        <div id="quoteText"></div>
-        <div id="quoteSource"></div>
-        <div class="quote-nav">
-          <button class="quote-btn" onclick="prevQuote()">← Prev</button>
-          <button class="quote-btn" onclick="nextQuote()">Next →</button>
-          <button class="quote-btn" onclick="randomQuote()" style="margin-left:auto;">🎲 Random</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 3: DAILY CHECKLIST -->
-    <div class="section-block">
-      <div class="section-title-row">
-        <div class="section-header" style="margin-bottom:0">
-          <span class="icon">☑️</span>
-          <h2>Daily Checklist</h2>
-        </div>
-        <div class="section-actions">
-          <button class="btn-sm" onclick="checkAll()">Check All</button>
-          <button class="btn-sm" onclick="uncheckAll()">Clear All</button>
-        </div>
-      </div>
-
-      <div class="two-col">
-        <!-- Morning Routine -->
-        <div class="card">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <span>🌅</span>
-            <span style="font-family:var(--font-head);font-size:13px;font-weight:700">Morning Routine</span>
-            <span id="morning-count" class="tag-pill" style="margin-left:auto">0/0</span>
-          </div>
-          <div class="todo-list" id="list-morning">
-            <div class="todo-item" data-cat="deen" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🕌 Fajr Prayer</span>
-              <span class="todo-tag tag-deen">Deen</span>
-              <span class="todo-time">5:00</span>
-            </div>
-            <div class="todo-item" data-cat="deen" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">📿 Morning Adhkar</span>
-              <span class="todo-tag tag-deen">Deen</span>
-              <span class="todo-time">5:20</span>
-            </div>
-            <div class="todo-item" data-cat="body" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🚿 Shower & Freshen Up</span>
-              <span class="todo-tag tag-body">Body</span>
-              <span class="todo-time">6:00</span>
-            </div>
-            <div class="todo-item" data-cat="health" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🥤 Drink Water (500ml)</span>
-              <span class="todo-tag tag-health">Health</span>
-              <span class="todo-time">6:10</span>
-            </div>
-            <div class="todo-item" data-cat="health" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🍳 Eat Healthy Breakfast</span>
-              <span class="todo-tag tag-health">Health</span>
-              <span class="todo-time">7:00</span>
-            </div>
-            <div class="todo-item" data-cat="mind" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">📔 Journal / Intentions</span>
-              <span class="todo-tag tag-mind">Mind</span>
-              <span class="todo-time">7:30</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Daytime Tasks -->
-        <div class="card">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <span>☀️</span>
-            <span style="font-family:var(--font-head);font-size:13px;font-weight:700">Daytime Tasks</span>
-            <span id="day-count" class="tag-pill" style="margin-left:auto">0/0</span>
-          </div>
-          <div class="todo-list" id="list-day">
-            <div class="todo-item" data-cat="work" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">💻 6hr Deep Work Block</span>
-              <span class="todo-tag tag-work">Work</span>
-              <span class="todo-time">8:00</span>
-            </div>
-            <div class="todo-item" data-cat="deen" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🕌 Dhuhr Prayer</span>
-              <span class="todo-tag tag-deen">Deen</span>
-              <span class="todo-time">12:30</span>
-            </div>
-            <div class="todo-item" data-cat="health" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🥗 Eat Healthy Lunch</span>
-              <span class="todo-tag tag-health">Health</span>
-              <span class="todo-time">13:00</span>
-            </div>
-            <div class="todo-item" data-cat="body" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🏋️ Workout / Exercise</span>
-              <span class="todo-tag tag-body">Body</span>
-              <span class="todo-time">14:00</span>
-            </div>
-            <div class="todo-item" data-cat="deen" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🕌 Asr Prayer</span>
-              <span class="todo-tag tag-deen">Deen</span>
-              <span class="todo-time">15:30</span>
-            </div>
-            <div class="todo-item" data-cat="mind" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">📚 Read 30 Minutes</span>
-              <span class="todo-tag tag-mind">Mind</span>
-              <span class="todo-time">17:00</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Evening Routine -->
-        <div class="card">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <span>🌙</span>
-            <span style="font-family:var(--font-head);font-size:13px;font-weight:700">Evening Routine</span>
-            <span id="evening-count" class="tag-pill" style="margin-left:auto">0/0</span>
-          </div>
-          <div class="todo-list" id="list-evening">
-            <div class="todo-item" data-cat="deen" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🕌 Maghrib Prayer</span>
-              <span class="todo-tag tag-deen">Deen</span>
-              <span class="todo-time">18:00</span>
-            </div>
-            <div class="todo-item" data-cat="deen" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">📿 Evening Adhkar</span>
-              <span class="todo-tag tag-deen">Deen</span>
-              <span class="todo-time">18:30</span>
-            </div>
-            <div class="todo-item" data-cat="health" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🍽️ Eat Healthy Dinner</span>
-              <span class="todo-tag tag-health">Health</span>
-              <span class="todo-time">19:00</span>
-            </div>
-            <div class="todo-item" data-cat="mind" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🎓 Learn / Study Skill</span>
-              <span class="todo-tag tag-mind">Mind</span>
-              <span class="todo-time">20:00</span>
-            </div>
-            <div class="todo-item" data-cat="deen" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🕌 Isha Prayer</span>
-              <span class="todo-tag tag-deen">Deen</span>
-              <span class="todo-time">21:00</span>
-            </div>
-            <div class="todo-item" data-cat="mind" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">📖 Quran Reading</span>
-              <span class="todo-tag tag-deen">Deen</span>
-              <span class="todo-time">21:30</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Night Wrap-up -->
-        <div class="card">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <span>🌟</span>
-            <span style="font-family:var(--font-head);font-size:13px;font-weight:700">Night Wrap-up</span>
-            <span id="night-count" class="tag-pill" style="margin-left:auto">0/0</span>
-          </div>
-          <div class="todo-list" id="list-night">
-            <div class="todo-item" data-cat="mind" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">✍️ Daily Reflection Journal</span>
-              <span class="todo-tag tag-mind">Mind</span>
-              <span class="todo-time">22:00</span>
-            </div>
-            <div class="todo-item" data-cat="work" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">📋 Plan Tomorrow's Tasks</span>
-              <span class="todo-tag tag-work">Work</span>
-              <span class="todo-time">22:15</span>
-            </div>
-            <div class="todo-item" data-cat="body" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🚫 No Screen After 22:30</span>
-              <span class="todo-tag tag-body">Body</span>
-              <span class="todo-time">22:30</span>
-            </div>
-            <div class="todo-item" data-cat="body" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">😴 Sleep by 23:00</span>
-              <span class="todo-tag tag-body">Body</span>
-              <span class="todo-time">23:00</span>
-            </div>
-            <div class="todo-item" data-cat="deen" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">🤲 Tahajjud / Witr Prayer</span>
-              <span class="todo-tag tag-deen">Deen</span>
-              <span class="todo-time">03:00</span>
-            </div>
-            <div class="todo-item" data-cat="health" onclick="toggle(this)">
-              <div class="todo-checkbox"><span class="check-icon">✓</span></div>
-              <span class="todo-label">💧 Total 2L Water Today</span>
-              <span class="todo-tag tag-health">Health</span>
-              <span class="todo-time">All day</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="all-done-banner" id="allDoneBanner">
-        🎉 Masha'Allah! All tasks completed for today! جزاك الله خيراً
-      </div>
-    </div>
-
-    <!-- SECTION 4: HABIT TRACKER WITH CIRCLE CHARTS -->
-    <div class="section-block">
-      <div class="section-header">
-        <span class="icon">🔥</span>
-        <h2>Habit-Streak &amp; Daily Tracking</h2>
-      </div>
-      <div class="cards-grid cards-grid-4" id="habitGrid">
-        <!-- Populated by JS -->
-      </div>
-    </div>
-
-    <!-- SECTION 5: OVERALL PROGRESS -->
-    <div class="section-block">
-      <div class="section-header">
-        <span class="icon">📊</span>
-        <h2>Overall Daily Progress</h2>
-      </div>
-      <div class="card">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:24px;align-items:center">
-          <!-- Big circle -->
-          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-            <div class="circle-chart" style="width:90px;height:90px">
-              <svg viewBox="0 0 70 70" width="90" height="90">
-                <circle class="circle-bg" cx="35" cy="35" r="30"/>
-                <circle id="main-circle" class="circle-fill" cx="35" cy="35" r="30"
-                  style="stroke:var(--accent-gold)"
-                  stroke-dasharray="188.5"
-                  stroke-dashoffset="188.5"/>
-              </svg>
-              <div class="circle-text">
-                <span class="circle-pct" id="main-pct" style="font-size:18px;color:var(--accent-gold)">0%</span>
-                <span class="circle-sub">Today</span>
-              </div>
-            </div>
-            <span style="font-family:var(--font-mono);font-size:10px;color:var(--text2)">Overall Score</span>
-          </div>
-
-          <!-- Category bars -->
-          <div style="grid-column:2/-1">
-            <div id="cat-bars"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 6: WEEKLY HEATMAP -->
-    <div class="section-block">
-      <div class="section-header">
-        <span class="icon">📅</span>
-        <h2>Weekly Habit Heatmap</h2>
-      </div>
-      <div class="card">
-        <div id="heatmapContainer" style="overflow-x:auto"></div>
-      </div>
-    </div>
-
-  </main>
+</main>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-// CLOCK & DATE (Poland / Warsaw time)
-// ═══════════════════════════════════════════════════════
-function updateClock() {
-  const now = new Date();
-  const warsawOpts = { timeZone: 'Europe/Warsaw' };
-  const timeStr = now.toLocaleTimeString('en-GB', { ...warsawOpts, hour12: false });
-  const dateStr = now.toLocaleDateString('en-GB', { ...warsawOpts, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  document.getElementById('clock').textContent = timeStr;
-  document.getElementById('dateDisplay').textContent = dateStr;
-}
-updateClock();
-setInterval(updateClock, 1000);
-
-// ═══════════════════════════════════════════════════════
-// ISLAMIC QUOTES
-// ═══════════════════════════════════════════════════════
-const quotes = [
-  { text: "The strong man is not the one who can overpower others. The strong man is the one who controls himself when he is angry.", source: "Prophet Muhammad ﷺ — Sahih al-Bukhari 6114" },
-  { text: "Whoever wakes up and this world is his biggest concern, Allah will scatter his affairs and place poverty before his eyes.", source: "Prophet Muhammad ﷺ — Ibn Majah" },
-  { text: "Seek knowledge from the cradle to the grave.", source: "Prophet Muhammad ﷺ — Hadith" },
-  { text: "The best of people are those who benefit others.", source: "Prophet Muhammad ﷺ — Al-Tabarani" },
-  { text: "Make things easy and do not make them difficult. Give glad tidings and do not frighten people away.", source: "Prophet Muhammad ﷺ — Sahih al-Bukhari" },
-  { text: "Whoever does not thank people has not thanked Allah.", source: "Prophet Muhammad ﷺ — Abu Dawud" },
-  { text: "Take benefit of five before five: your youth before your old age, your health before your sickness, your wealth before your poverty, your free time before your preoccupation, and your life before your death.", source: "Prophet Muhammad ﷺ — Shu'ab al-Iman" },
-  { text: "Do not waste water even if you are on a running stream.", source: "Prophet Muhammad ﷺ — Sunan Ibn Majah" },
-  { text: "Speak good or remain silent.", source: "Prophet Muhammad ﷺ — Sahih al-Bukhari 6018" },
-  { text: "Verily, with hardship comes ease.", source: "Quran 94:5 — Surah Al-Inshirah" },
-  { text: "And whoever relies upon Allah — then He is sufficient for him. Indeed, Allah will accomplish His purpose.", source: "Quran 65:3 — Surah At-Talaq" },
-  { text: "Remember your Lord in times of ease and He will remember you in times of difficulty.", source: "Imam Ahmad — Musnad Ahmad" },
-  { text: "Be in this world as if you are a stranger or a traveller passing through.", source: "Prophet Muhammad ﷺ — Sahih al-Bukhari" },
-  { text: "The heart of an old man stays young in two things: love of the world and far-fetched hopes.", source: "Imam Ali ibn Abi Talib رضي الله عنه" },
-  { text: "Do not rejoice at the misfortunes of your brother, lest Allah have mercy on him and afflict you with it.", source: "Prophet Muhammad ﷺ — Jami' at-Tirmidhi" },
-  { text: "He who knows himself knows his Lord.", source: "Imam Al-Ghazali رحمه الله" },
-  { text: "The cure for ignorance is to question.", source: "Prophet Muhammad ﷺ — Abu Dawud" },
-  { text: "Lower your gaze, guard your chastity, control your tongue and hands, and do not grieve.", source: "Ibn al-Qayyim رحمه الله — Al-Fawa'id" },
-  { text: "If you are grateful, I will surely increase you in favor.", source: "Quran 14:7 — Surah Ibrahim" },
-  { text: "Whoever wants to know what Allah has prepared for him, let him look at what he has prepared for Allah.", source: "Imam Ibn al-Qayyim رحمه الله" },
-  { text: "A man follows the religion of his friend; so each one should consider whom he makes his friend.", source: "Prophet Muhammad ﷺ — Abu Dawud" },
-  { text: "Patience is a pillar of faith.", source: "Imam Ali ibn Abi Talib رضي الله عنه" },
-  { text: "Indeed, Allah does not change the condition of a people until they change what is in themselves.", source: "Quran 13:11 — Surah Ar-Ra'd" },
-  { text: "Three things from this world were made dear to me: women, perfume, and prayer was made the coolness of my eyes.", source: "Prophet Muhammad ﷺ — Sunan an-Nasa'i" },
-  { text: "The most beloved of deeds to Allah are those that are most consistent, even if they are small.", source: "Prophet Muhammad ﷺ — Sahih al-Bukhari 6464" },
-];
-
-let currentQuote = Math.floor(Math.random() * quotes.length);
-let quoteInterval;
-
-function showQuote(idx) {
-  const el = document.getElementById('quoteText');
-  const src = document.getElementById('quoteSource');
-  el.style.opacity = 0;
-  src.style.opacity = 0;
-  setTimeout(() => {
-    el.textContent = `"${quotes[idx].text}"`;
-    src.textContent = `— ${quotes[idx].source}`;
-    el.style.opacity = 1;
-    src.style.opacity = 1;
-  }, 300);
-}
-
-function nextQuote() {
-  currentQuote = (currentQuote + 1) % quotes.length;
-  showQuote(currentQuote);
-  resetQuoteTimer();
-}
-
-function prevQuote() {
-  currentQuote = (currentQuote - 1 + quotes.length) % quotes.length;
-  showQuote(currentQuote);
-  resetQuoteTimer();
-}
-
-function randomQuote() {
-  currentQuote = Math.floor(Math.random() * quotes.length);
-  showQuote(currentQuote);
-  resetQuoteTimer();
-}
-
-function resetQuoteTimer() {
-  clearInterval(quoteInterval);
-  quoteInterval = setInterval(nextQuote, 30000);
-}
-
-showQuote(currentQuote);
-quoteInterval = setInterval(nextQuote, 30000);
-
-// ═══════════════════════════════════════════════════════
-// HABITS DATA
-// ═══════════════════════════════════════════════════════
-const habits = [
-  { id: 'fajr',    name: '🌅 Fajr Prayer',     color: '#f5c842', freq: 'Daily', cat: 'deen',   streak: 0, goal: 7  },
-  { id: 'quran',   name: '📖 Quran Reading',    color: '#a78bfa', freq: 'Daily', cat: 'deen',   streak: 0, goal: 7  },
-  { id: 'deep',    name: '💻 6hr Deep Work',     color: '#fb923c', freq: 'Daily', cat: 'work',   streak: 0, goal: 7  },
-  { id: 'workout', name: '🏋️ Workout',           color: '#4ade80', freq: 'Daily', cat: 'body',   streak: 0, goal: 6  },
-  { id: 'read',    name: '📚 Reading 30min',     color: '#60a5fa', freq: 'Daily', cat: 'mind',   streak: 0, goal: 7  },
-  { id: 'healthy', name: '🥗 Eat Healthy',       color: '#2dd4bf', freq: 'Daily', cat: 'health', streak: 0, goal: 7  },
-  { id: 'water',   name: '💧 2L Water',          color: '#38bdf8', freq: 'Daily', cat: 'health', streak: 0, goal: 7  },
-  { id: 'journal', name: '✍️ Journal',           color: '#f472b6', freq: 'Daily', cat: 'mind',   streak: 0, goal: 7  },
-];
-
-// Load streaks from localStorage
-const storageKey = 'pvault_v2';
-let appState = JSON.parse(localStorage.getItem(storageKey) || '{}');
-
-// Check if today's data exists
-const todayKey = getTodayKey();
-if (!appState.days) appState.days = {};
-if (!appState.days[todayKey]) appState.days[todayKey] = {};
-if (!appState.streaks) appState.streaks = {};
-
-function getTodayKey() {
-  const now = new Date();
-  const d = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw' }).format(now);
-  return d; // YYYY-MM-DD
-}
-
-function saveState() {
-  localStorage.setItem(storageKey, JSON.stringify(appState));
-}
-
-// ═══════════════════════════════════════════════════════
-// CIRCLE CHART SVG
-// ═══════════════════════════════════════════════════════
-function makeCircle(id, pct, color, size = 70) {
-  const r = 28;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (pct / 100) * circ;
-  return `
-    <div class="circle-chart" style="width:${size}px;height:${size}px">
-      <svg viewBox="0 0 70 70" width="${size}" height="${size}">
-        <circle class="circle-bg" cx="35" cy="35" r="${r}"/>
-        <circle class="circle-fill" id="hc-${id}" cx="35" cy="35" r="${r}"
-          style="stroke:${color}"
-          stroke-dasharray="${circ.toFixed(1)}"
-          stroke-dashoffset="${offset.toFixed(1)}"/>
-      </svg>
-      <div class="circle-text">
-        <span class="circle-pct" style="color:${color}">${Math.round(pct)}%</span>
-        <span class="circle-sub">done</span>
-      </div>
-    </div>`;
-}
-
-// ═══════════════════════════════════════════════════════
-// RENDER HABIT CARDS
-// ═══════════════════════════════════════════════════════
-function renderHabits() {
-  const grid = document.getElementById('habitGrid');
-  grid.innerHTML = '';
-
-  habits.forEach(h => {
-    const done = appState.days[todayKey][h.id] ? 1 : 0;
-    const pct = done * 100;
-    const streak = appState.streaks[h.id] || 0;
-
-    // Mini heatmap (last 7 days)
-    let heatCells = '';
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const dk = Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw' }).format(d);
-      const v = (appState.days[dk] && appState.days[dk][h.id]) ? 4 : 0;
-      heatCells += `<div class="heatmap-cell h${v}" title="${dk}"></div>`;
-    }
-
-    const card = document.createElement('div');
-    card.className = 'habit-card';
-    card.innerHTML = `
-      <div class="habit-header">
-        <div>
-          <div class="habit-name">${h.name}</div>
-          <div class="habit-freq">Weekly: ${h.goal}× target</div>
-        </div>
-        <div class="streak-badge">🔥 ${streak}d</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        ${makeCircle(h.id, pct, h.color)}
-        <div style="flex:1">
-          <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Last 7 days</div>
-          <div style="display:flex;gap:3px">${heatCells}</div>
-          <div class="progress-bar-wrap" style="margin-top:10px">
-            <div class="progress-bar-bg">
-              <div class="progress-bar-fill" style="width:${pct}%;background:${h.color}"></div>
-            </div>
-            <div class="progress-bar-labels">
-              <span>${done ? 'Completed' : 'Not done'}</span>
-              <span>${done}/1</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <button onclick="toggleHabit('${h.id}', this)" 
-          class="btn-sm ${done ? 'active' : ''}"
-          style="border-color:${done ? h.color : ''};color:${done ? h.color : ''}">
-          ${done ? '✓ Mark as complete' : 'Mark as complete'}
-        </button>
-        ${done ? `<span class="completed-marker">✓ Completed Today</span>` : ''}
-      </div>`;
-    grid.appendChild(card);
-  });
-}
-
-function toggleHabit(id, btn) {
-  const cur = appState.days[todayKey][id];
-  appState.days[todayKey][id] = !cur;
-  if (!cur) {
-    appState.streaks[id] = (appState.streaks[id] || 0) + 1;
-  } else {
-    appState.streaks[id] = Math.max(0, (appState.streaks[id] || 0) - 1);
-  }
-  saveState();
-  renderHabits();
-  updateStats();
-}
-
-// ═══════════════════════════════════════════════════════
-// CHECKLIST LOGIC
-// ═══════════════════════════════════════════════════════
-function toggle(el) {
+function toggle(el){
   el.classList.toggle('checked');
-  updateCounts();
-  updateStats();
-  saveChecks();
 }
 
-function updateCounts() {
-  const sections = ['morning', 'day', 'evening', 'night'];
-  let total = 0, done = 0;
-
-  sections.forEach(s => {
-    const list = document.getElementById('list-' + s);
-    const items = list.querySelectorAll('.todo-item');
-    const checkedItems = list.querySelectorAll('.todo-item.checked');
-    document.getElementById(s + '-count').textContent = `${checkedItems.length}/${items.length}`;
-    total += items.length;
-    done += checkedItems.length;
-  });
-
-  document.getElementById('ov-tasks').textContent = `${done}/${total}`;
-  document.getElementById('sb-tasks').textContent = `${done}/${total}`;
-
-  // Show banner if all done
-  const banner = document.getElementById('allDoneBanner');
-  banner.style.display = (done === total && total > 0) ? 'block' : 'none';
-
-  return { total, done };
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clock').textContent=now.toLocaleTimeString();
 }
-
-function saveChecks() {
-  const allItems = document.querySelectorAll('.todo-item');
-  const checks = {};
-  allItems.forEach((item, i) => {
-    checks[i] = item.classList.contains('checked');
-  });
-  appState.checks = checks;
-  saveState();
-}
-
-function loadChecks() {
-  if (!appState.checks) return;
-  const allItems = document.querySelectorAll('.todo-item');
-  allItems.forEach((item, i) => {
-    if (appState.checks[i]) item.classList.add('checked');
-  });
-}
-
-function checkAll() {
-  document.querySelectorAll('.todo-item').forEach(el => el.classList.add('checked'));
-  updateCounts(); updateStats(); saveChecks();
-}
-
-function uncheckAll() {
-  document.querySelectorAll('.todo-item').forEach(el => el.classList.remove('checked'));
-  updateCounts(); updateStats(); saveChecks();
-}
-
-function resetDay() {
-  if (!confirm('Reset today\'s data?')) return;
-  appState.days[todayKey] = {};
-  appState.checks = {};
-  saveState();
-  uncheckAll();
-  renderHabits();
-  updateStats();
-}
-
-// ═══════════════════════════════════════════════════════
-// STATS & SCORES
-// ═══════════════════════════════════════════════════════
-const catColors = { deen: '#a78bfa', health: '#2dd4bf', work: '#fb923c', body: '#4ade80', mind: '#60a5fa' };
-
-function updateStats() {
-  const allItems = document.querySelectorAll('.todo-item');
-  const cats = { deen: [0, 0], health: [0, 0], work: [0, 0], body: [0, 0], mind: [0, 0] };
-
-  allItems.forEach(el => {
-    const cat = el.dataset.cat;
-    if (cats[cat]) {
-      cats[cat][1]++;
-      if (el.classList.contains('checked')) cats[cat][0]++;
-    }
-  });
-
-  // Category bars
-  const catBarsEl = document.getElementById('cat-bars');
-  catBarsEl.innerHTML = Object.entries(cats).map(([cat, [done, total]]) => {
-    const pct = total > 0 ? Math.round(done / total * 100) : 0;
-    const label = cat.charAt(0).toUpperCase() + cat.slice(1);
-    return `
-      <div style="margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
-          <span style="color:${catColors[cat]}">${label}</span>
-          <span style="font-family:var(--font-mono);color:var(--text3)">${pct}%</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" style="width:${pct}%;background:${catColors[cat]}"></div>
-        </div>
-      </div>`;
-  }).join('');
-
-  // Overall
-  let totalTasks = 0, doneTasks = 0;
-  allItems.forEach(el => {
-    totalTasks++;
-    if (el.classList.contains('checked')) doneTasks++;
-  });
-  const habitsTotal = habits.length;
-  const habitsDone = habits.filter(h => appState.days[todayKey][h.id]).length;
-  const totalAll = totalTasks + habitsTotal;
-  const doneAll = doneTasks + habitsDone;
-  const overallPct = totalAll > 0 ? Math.round(doneAll / totalAll * 100) : 0;
-
-  // Update main circle
-  const r = 30;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (overallPct / 100) * circ;
-  const circle = document.getElementById('main-circle');
-  if (circle) {
-    circle.setAttribute('stroke-dasharray', circ.toFixed(1));
-    circle.setAttribute('stroke-dashoffset', offset.toFixed(1));
-  }
-  const mainPct = document.getElementById('main-pct');
-  if (mainPct) mainPct.textContent = overallPct + '%';
-
-  // Overview stats
-  document.getElementById('sb-score').textContent = overallPct + '%';
-  document.getElementById('sb-habits').textContent = `${habitsDone}/${habitsTotal}`;
-
-  // Category overview scores
-  const deenPct = cats.deen[1] > 0 ? Math.round(cats.deen[0]/cats.deen[1]*100) : 0;
-  const healthPct = cats.health[1] > 0 ? Math.round(cats.health[0]/cats.health[1]*100) : 0;
-  const mindPct = cats.mind[1] > 0 ? Math.round(cats.mind[0]/cats.mind[1]*100) : 0;
-  document.getElementById('ov-deen').textContent = deenPct + '%';
-  document.getElementById('ov-health').textContent = healthPct + '%';
-  document.getElementById('ov-mind').textContent = mindPct + '%';
-
-  // Streak
-  const maxStreak = Math.max(...habits.map(h => appState.streaks[h.id] || 0), 0);
-  document.getElementById('ov-streak').textContent = maxStreak + 'd';
-}
-
-// ═══════════════════════════════════════════════════════
-// WEEKLY HEATMAP
-// ═══════════════════════════════════════════════════════
-function renderHeatmap() {
-  const container = document.getElementById('heatmapContainer');
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-  // Header row
-  let html = `<div style="display:flex;gap:4px;margin-bottom:6px;margin-left:32px">`;
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const day = d.toLocaleDateString('en-GB', { timeZone: 'Europe/Warsaw', weekday: 'short' });
-    const dateNum = d.toLocaleDateString('en-GB', { timeZone: 'Europe/Warsaw', day: 'numeric' });
-    html += `<div style="width:14px;text-align:center;font-family:var(--font-mono);font-size:8px;color:var(--text3)">${dateNum}</div>`;
-  }
-  html += '</div>';
-
-  habits.forEach(h => {
-    html += `<div class="heatmap-row">
-      <span class="heatmap-label" style="font-size:8px">${h.name.substring(0, 3)}</span>`;
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const dk = Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw' }).format(d);
-      const v = (appState.days[dk] && appState.days[dk][h.id]) ? 4 : 0;
-      html += `<div class="heatmap-cell h${v}" title="${h.name} - ${dk}" style="${v === 4 ? `background:${h.color}55` : ''}"></div>`;
-    }
-    html += `</div>`;
-  });
-
-  container.innerHTML = html;
-}
-
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-renderHabits();
-loadChecks();
-updateCounts();
-updateStats();
-renderHeatmap();
-
-// Auto-refresh heatmap every minute
-setInterval(() => {
-  renderHeatmap();
-}, 60000);
+setInterval(updateClock,1000);
+updateClock();
 </script>
+
 </body>
 </html>
